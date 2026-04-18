@@ -4,3 +4,8 @@ export type Question={
     options: string[]
     answer: string
 }
+
+export type QuestionBank={
+    title: string
+    questions: Question[]
+}
