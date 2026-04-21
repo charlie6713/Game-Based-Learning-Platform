@@ -1,11 +1,13 @@
 import { useState } from "react"
 import { questionBank } from "../data/questionBank"
 import type { Question } from "../types/question"
+import { useNavigate } from "react-router-dom"
 
 export default function TutorHomePage() {
   const [sessionTitle, setSessionTitle] = useState(questionBank.title)
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([])
-
+  const navigate = useNavigate()
+  
   const handleToggleQuestion = (question: Question) => {
     const alreadySelected = selectedQuestions.some((q) => q.id === question.id)
 
@@ -22,6 +24,8 @@ export default function TutorHomePage() {
     console.log("create session clicked")
     console.log("sessionTitle:", sessionTitle)
     console.log("selectedQuestions:", selectedQuestions)
+      navigate("/tutor/session/:pin")
+      
   }
 
   return (
