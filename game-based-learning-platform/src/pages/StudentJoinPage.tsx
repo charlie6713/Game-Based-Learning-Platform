@@ -1,13 +1,17 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+
 
 export default function StudentJoinPage() {
   const [name, setName] = useState("")
   const [pin, setPin] = useState("")
+  const navigate = useNavigate()
 
   const handleJoin = () => {
     console.log("join clicked")
     console.log("name:", name)
     console.log("pin:", pin)
+    navigate("/lobby/:pin")
   }
 
   return (
