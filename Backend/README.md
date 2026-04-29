@@ -6,7 +6,8 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 uvicorn app.main:app --reload
 
-
+once you create the local environment, you can directly use the following code to call the backend service
+python -m uvicorn app.main:app --reload
 
 
 
