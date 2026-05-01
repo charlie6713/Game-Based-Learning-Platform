@@ -1,14 +1,17 @@
+import copy
+
 from app.utils.pin import generate_pin
 from app.storage.memory import sessions
 
 
-
-DEFAULT_QUESTION = {
-    "id": 1,
-    "text": "What is 2 + 2?",
-    "options": ["3", "4", "5", "6"],
-    "answer": "4"
-}
+DEFAULT_QUESTIONS = [
+    {
+        "id": 1,
+        "text": "What is 2 + 2?",
+        "options": ["3", "4", "5", "6"],
+        "answer": "4"
+    }
+]
 
 
 def create_session() -> dict:
@@ -16,24 +19,29 @@ def create_session() -> dict:
 
     while pin in sessions:
         pin = generate_pin()
-    
+
+    questions = copy.deepcopy(DEFAULT_QUESTIONS)
+
     sessions[pin] = {
         "pin": pin,
         "students": [],
-        "submissions": [],
-        "current_question": DEFAULT_QUESTION
+        "submissions": {},  
+        "questions": questions,
+        "current_question_id": questions[0]["id"]
     }
 
     return {
         "pin": pin,
-        "message": "session created"
+        "message": "Session created"
     }
+
 
 def join_session(pin: str, student_name: str):
     if pin not in sessions:
         return None
-    
-    sessions[pin]["students"].append(student_name)
+
+    if student_name not in sessions[pin]["students"]:
+        sessions[pin]["students"].append(student_name)
 
     return {
         "pin": pin,
@@ -41,23 +49,33 @@ def join_session(pin: str, student_name: str):
         "message": "Joined session"
     }
 
+
 def get_student_question(pin: str):
     if pin not in sessions:
         return None
 
-    question = sessions[pin]["current_question"]
+    session = sessions[pin]
+    question = _get_current_question(session)
 
-    return{
+    if question is None:
+        return None
+
+    return {
         "id": question["id"],
         "text": question["text"],
         "options": question["options"]
     }
 
+
 def get_tutor_question(pin: str):
     if pin not in sessions:
         return None
-    
-    question = sessions[pin]["current_question"]
+
+    session = sessions[pin]
+    question = _get_current_question(session)
+
+    if question is None:
+        return None
 
     return {
         "id": question["id"],
@@ -65,3 +83,101 @@ def get_tutor_question(pin: str):
         "options": question["options"],
         "answer": question["answer"]
     }
+
+
+def submit_answer(pin: str, student_name: str, question_id: int, answer: str):
+    if pin not in sessions:
+        return None
+
+    session = sessions[pin]
+
+    if student_name not in session["students"]:
+        return {
+            "error": "student_not_joined"
+        }
+
+    current_question = _get_current_question(session)
+
+    if current_question is None:
+        return {
+            "error": "question_not_found"
+        }
+
+    if question_id != current_question["id"]:
+        return {
+            "error": "question_mismatch"
+        }
+
+    is_correct = answer == current_question["answer"]
+
+    submission = {
+        "student_name": student_name,
+        "question_id": question_id,
+        "submitted_answer": answer,
+        "is_correct": is_correct
+    }
+
+    _save_or_update_submission(session, submission)
+
+    return {
+        "pin": pin,
+        "student_name": student_name,
+        "question_id": question_id,
+        "submitted_answer": answer,
+        "is_correct": is_correct,
+        "message": "Answer submitted"
+    }
+
+
+def get_session_results(pin: str):
+    if pin not in sessions:
+        return None
+
+    session = sessions[pin]
+    results = []
+
+    for question in session["questions"]:
+        question_id = question["id"]
+
+        question_submissions = session["submissions"].get(question_id, {})
+
+        answers = []
+
+        for submission in question_submissions.values():
+            answers.append({
+                "student_name": submission["student_name"],
+                "submitted_answer": submission["submitted_answer"],
+                "is_correct": submission["is_correct"]
+            })
+
+        results.append({
+            "question_id": question_id,
+            "question_text": question["text"],
+            "correct_answer": question["answer"],
+            "answers": answers
+        })
+
+    return {
+        "pin": pin,
+        "results": results
+    }
+
+
+def _get_current_question(session: dict):
+    current_question_id = session["current_question_id"]
+
+    for question in session["questions"]:
+        if question["id"] == current_question_id:
+            return question
+
+    return None
+
+
+def _save_or_update_submission(session: dict, submission: dict):
+    question_id = submission["question_id"]
+    student_name = submission["student_name"]
+
+    if question_id not in session["submissions"]:
+        session["submissions"][question_id] = {}
+
+    session["submissions"][question_id][student_name] = submission
