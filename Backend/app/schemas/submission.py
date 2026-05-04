@@ -21,7 +21,7 @@ class StudentAnswerResult(BaseModel):
 class QuestionResult(BaseModel):
     question_id: int
     question_text: str
-    question_answer: str
+    correct_answer: str
     answers: list[StudentAnswerResult]
 
 class SessionResultResponse(BaseModel):
