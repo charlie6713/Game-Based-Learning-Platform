@@ -8,7 +8,9 @@ from app.schemas.session import (
 from app.schemas.submission import (
     SubmitAnswerRequest,
     SubmitAnswerResponse,
-    SessionResultResponse
+    SessionResultResponse,
+    StudentSummary,
+    SessionStudentsResponse
 )
 
 from app.schemas.question import (
@@ -93,6 +95,18 @@ def submit_answer(pin: str, request: SubmitAnswerRequest):
 @router.get("/{pin}/results", response_model=SessionResultResponse, status_code=status.HTTP_200_OK)
 def get_session_results(pin: str):
     result = session_service.get_session_results(pin)
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="session not found"
+        )
+    
+    return result
+
+@router.get("/{pin}/students", response_model=SessionStudentsResponse, status_code=status.HTTP_200_OK)
+def get_session_students(pin: str):
+    result = session_service.get_session_students(pin)
 
     if result is None:
         raise HTTPException(

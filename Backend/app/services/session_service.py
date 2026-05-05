@@ -181,3 +181,42 @@ def _save_or_update_submission(session: dict, submission: dict):
         session["submissions"][question_id] = {}
 
     session["submissions"][question_id][student_name] = submission
+
+
+def get_session_students(pin: str):
+    if pin not in sessions:
+        return None
+
+    session = sessions[pin]
+    students = []
+
+    for student_name in session.get("students", []):
+        submitted_count = 0
+        correct_count = 0
+
+        # submissions are stored as:
+        # {question_id: {student_name: submission_dict}}
+        for question_submissions in session.get("submissions", {}).values():
+            submission = question_submissions.get(student_name)
+
+            if submission is None:
+                continue
+
+            submitted_count += 1
+
+            if submission.get("is_correct") is True:
+                correct_count += 1
+
+        student_info = {
+            "student_name": student_name,
+            "submitted_count": submitted_count,
+            "correct_count": correct_count,
+            "score": correct_count
+        }
+
+        students.append(student_info)
+
+    return {
+        "pin": pin,
+        "students": students
+    }

@@ -27,3 +27,14 @@ class QuestionResult(BaseModel):
 class SessionResultResponse(BaseModel):
     pin: str
     results: list[QuestionResult]
+
+class StudentSummary(BaseModel):
+    student_name: str
+    submitted_count: int
+    correct_count: int
+    score: int
+
+
+class SessionStudentsResponse(BaseModel):
+    pin: str
+    students: list[StudentSummary]
