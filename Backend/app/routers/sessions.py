@@ -2,7 +2,8 @@ from fastapi import APIRouter, status, HTTPException
 from app.schemas.session import (
     CreateSessionResponse, 
     JoinSessionRequest,
-    JoinSessionResponse
+    JoinSessionResponse,
+    CreateSessionRequest
     )
 
 from app.schemas.submission import (
@@ -15,7 +16,8 @@ from app.schemas.submission import (
 
 from app.schemas.question import (
     TutorQuestionResponse,
-    StudentQuestionResponse
+    StudentQuestionResponse,
+    CreateSessionQuestion
 )
 
 from app.services import session_service
@@ -26,8 +28,21 @@ router = APIRouter(
 )
 
 @router.post("", response_model=CreateSessionResponse, status_code=status.HTTP_201_CREATED)
-def create_new_session():
-    return session_service.create_session()
+def create_new_session(data: CreateSessionRequest):
+    if len(data.questions) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="question can not be empty"
+        )
+    
+    questions = []
+
+    for question in data.questions:
+        questions.append(question.model_dump())
+    return session_service.create_session(questions)
+
+
+
 
 @router.post("/join", response_model=JoinSessionResponse, status_code=status.HTTP_200_OK)
 def join_existing_session(data: JoinSessionRequest):

@@ -11,3 +11,8 @@ export type session = {
     status: "waitng" | "started"
     students: Student[]
 }
+
+export type CreateSessionResponse = {
+    pin: string
+    message: string
+}

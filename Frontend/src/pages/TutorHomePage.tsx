@@ -3,10 +3,12 @@ import { questionBank } from "../data/questionBank"
 import type { Question } from "../types/question"
 import { useNavigate } from "react-router-dom"
 
+
 export default function TutorHomePage() {
   const [sessionTitle, setSessionTitle] = useState(questionBank.title)
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([])
   const navigate = useNavigate()
+  const API_BASE_URL = "http://localhost:8000"
   
   const handleToggleQuestion = (question: Question) => {
     const alreadySelected = selectedQuestions.some((q) => q.id === question.id)
@@ -20,12 +22,27 @@ export default function TutorHomePage() {
     setSelectedQuestions([...selectedQuestions, question])
   }
 
-  const handleCreateSession = () => {
-    console.log("create session clicked")
-    console.log("sessionTitle:", sessionTitle)
-    console.log("selectedQuestions:", selectedQuestions)
-      navigate("/tutor/session/:pin")
+  
+
+  const handleCreateSession = async () => {
+    if (selectedQuestions.length === 0){
+      alert("Please select at least one question")
+      return
+    }
       
+    const response = await fetch(`${API_BASE_URL}/sessions`,{  //use ` not '
+      method: "post",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        questions: selectedQuestions
+      })
+    })
+
+    const data = await response.json()
+    console.log(data.pin)
+    navigate("/tutor/session/" + data.pin)
   }
 
   return (

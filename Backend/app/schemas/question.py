@@ -11,5 +11,9 @@ class TutorQuestionResponse(BaseModel):
     options: list[str]
     answer: str
 
-
+class CreateSessionQuestion(BaseModel):
+    id: int
+    text: str
+    options: list[str]
+    answer: str
 

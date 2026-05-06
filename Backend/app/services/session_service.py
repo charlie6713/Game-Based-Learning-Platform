@@ -4,30 +4,21 @@ from app.utils.pin import generate_pin
 from app.storage.memory import sessions
 
 
-DEFAULT_QUESTIONS = [
-    {
-        "id": 1,
-        "text": "What is 2 + 2?",
-        "options": ["3", "4", "5", "6"],
-        "answer": "4"
-    }
-]
 
-
-def create_session() -> dict:
+def create_session(questions: list[dict]) -> dict:
     pin = generate_pin()
 
     while pin in sessions:
         pin = generate_pin()
 
-    questions = copy.deepcopy(DEFAULT_QUESTIONS)
+    session_questions = copy.deepcopy(questions)
 
     sessions[pin] = {
         "pin": pin,
         "students": [],
         "submissions": {},  
-        "questions": questions,
-        "current_question_id": questions[0]["id"]
+        "questions": session_questions,
+        "current_question_id": session_questions[0]["id"]
     }
 
     return {
