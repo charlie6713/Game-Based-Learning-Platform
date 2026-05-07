@@ -57,7 +57,7 @@ def get_student_question(pin: str):
         "options": question["options"]
     }
 
-
+    
 def get_tutor_question(pin: str):
     if pin not in sessions:
         return None

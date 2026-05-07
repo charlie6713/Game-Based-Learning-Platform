@@ -43,7 +43,6 @@ def create_new_session(data: CreateSessionRequest):
 
 
 
-
 @router.post("/join", response_model=JoinSessionResponse, status_code=status.HTTP_200_OK)
 def join_existing_session(data: JoinSessionRequest):
     result = session_service.join_session(data.pin, data.student_name)
@@ -130,3 +129,4 @@ def get_session_students(pin: str):
         )
     
     return result
+

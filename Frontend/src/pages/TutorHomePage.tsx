@@ -42,7 +42,7 @@ export default function TutorHomePage() {
 
     const data = await response.json()
     console.log(data.pin)
-    navigate("/tutor/session/" + data.pin)
+    navigate(`/tutor/session/${data.pin}`)
   }
 
   return (

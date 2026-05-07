@@ -1,9 +1,11 @@
 import { useState } from "react"
 import type { Student } from "../types/session"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 export default function TutorSessionPage() {
     const navigate = useNavigate()
+    const { pin } = useParams()
+
     const [students] = useState<Student[]>([
         { id: "1", name: "charlie" },
         { id: "2", name: "polos" },
@@ -20,7 +22,12 @@ export default function TutorSessionPage() {
                 <h1 className="mb-4 text-3xl font-bold text-gray-800">
                     Tutor Session Page
                 </h1>
-
+                <p className="mb-6 rounded-lg bg-blue-50 px-4 py-3 text-blue-700">
+                    Session Pin:{" "}
+                    <span className="font-bold tracking-wider">
+                        {pin}
+                    </span>
+                </p>
                 <p className="mb-6 text-gray-600">
                     Student joined:{" "}
                     <span className="font-semibold text-gray-900">

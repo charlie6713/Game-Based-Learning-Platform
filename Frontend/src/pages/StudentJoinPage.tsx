@@ -6,12 +6,29 @@ export default function StudentJoinPage() {
   const [name, setName] = useState("")
   const [pin, setPin] = useState("")
   const navigate = useNavigate()
+  const API_BASE_URL = "http://localhost:8000"
 
-  const handleJoin = () => {
-    console.log("join clicked")
-    console.log("name:", name)
-    console.log("pin:", pin)
-    navigate("/lobby/:pin")
+  const handleJoin = async () => {
+    const response = await fetch(`${API_BASE_URL}/sessions/join`,{
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pin: pin,
+        student_name: name,
+      }),
+    })
+
+    if(!response.ok){
+      alert("session not found")
+      return
+    }
+
+    const data = await response.json()
+    console.log("joined:", data )
+    navigate(`/lobby/${pin}`)
+    
   }
 
   return (
