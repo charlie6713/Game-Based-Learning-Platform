@@ -1,19 +1,42 @@
-import { useState } from "react"
-import type { Student } from "../types/session"
+import { useState, useEffect } from "react"
+import type { StudentSummary, SessionStudentsResponse } from "../types/session"
 import { useNavigate, useParams } from "react-router-dom"
+
+const API_BASE_URL = "http://localhost:8000"
 
 export default function TutorSessionPage() {
     const navigate = useNavigate()
     const { pin } = useParams()
 
-    const [students] = useState<Student[]>([
-        { id: "1", name: "charlie" },
-        { id: "2", name: "polos" },
-        { id: "3", name: "yumi" },
-    ])
+    const [students, setStudents] = useState<StudentSummary[]>([])
+
+    useEffect(()=>{
+        if(!pin) return
+        getStudents()
+        const intervalId = setInterval(() => {
+        getStudents()
+    }, 1000)  //every 1 second polling the student list
+
+    return () => {
+        clearInterval(intervalId)
+    }
+    },[pin])
+
+    const getStudents = async () => {
+        const response = await fetch(`${API_BASE_URL}/sessions/${pin}/students`)
+
+        if (!response.ok) {
+            alert("Session not found")
+            return
+        }
+
+        const data: SessionStudentsResponse = await response.json()
+
+        setStudents(data.students)
+    }
 
     const handleStartGame = () => {
-        navigate("/session/:pin/question")
+        navigate(`/session/${pin}/question`)
     }
 
     return (
@@ -47,10 +70,10 @@ export default function TutorSessionPage() {
                     <ul className="mb-6 space-y-2">
                         {students.map((student) => (
                             <li
-                                key={student.id}
+                                key={student.student_name}
                                 className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-gray-700"
                             >
-                                {student.name}
+                                {student.student_name}
                             </li>
                         ))}
                     </ul>

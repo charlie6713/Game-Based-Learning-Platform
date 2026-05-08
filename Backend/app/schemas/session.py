@@ -16,3 +16,4 @@ class JoinSessionResponse(BaseModel):
 
 class CreateSessionRequest(BaseModel):
     questions: list[CreateSessionQuestion]
+
