@@ -3,7 +3,9 @@ from app.schemas.session import (
     CreateSessionResponse, 
     JoinSessionRequest,
     JoinSessionResponse,
-    CreateSessionRequest
+    CreateSessionRequest,
+    SessionStatusResponse,
+    StartSessionResponse
     )
 
 from app.schemas.submission import (
@@ -53,6 +55,30 @@ def join_existing_session(data: JoinSessionRequest):
         )
     
     return result
+
+
+@router.post("/{pin}/start", response_model=StartSessionResponse, status_code=status.HTTP_200_OK)
+def start_game(pin: str):
+    result = session_service.start_session(pin)
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="session not found"
+        )
+    return result
+
+@router.get("/{pin}/status", response_model=SessionStatusResponse, status_code=status.HTTP_200_OK)
+def get_current_status(pin: str):
+    result = session_service.get_session_status(pin)
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="session not found"
+        )
+    return result
+
+
+
 
 @router.get("/{pin}/tutor/question", response_model=TutorQuestionResponse, status_code=status.HTTP_200_OK)
 def get_question_for_tutor(pin: str):

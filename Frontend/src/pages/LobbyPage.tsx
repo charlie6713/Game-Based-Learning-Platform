@@ -1,10 +1,52 @@
-import { useParams } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { useLocation, useNavigate, useParams} from "react-router-dom"
 
 export default function LobbyPage() {
   const { pin } = useParams()
 
-  const studentName = "Charlie"
+  const location = useLocation()
+  const navigate = useNavigate()
 
+  const studentName = location.state?.studentName ?? ""
+  const [status, setStatus] = useState("waiting")
+
+  const API_BASE_URL = "http://localhost:8000"
+
+  const getSessionStatus = async () =>{
+    const response = await fetch(`${API_BASE_URL}/${pin}/status`)
+
+    if (!response.ok) {
+            alert("Session not found")
+            return
+        }
+
+    const data = await response.json()
+
+    setStatus(data.status)
+
+    if (data.status === "started"){
+      navigate(`/session/${pin}/question`,{
+        state: {
+          role: "student",
+          studentName: studentName,
+        }
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (!pin) return
+
+    getSessionStatus()
+
+    const intervalId = setInterval(() => {
+      getSessionStatus()
+    }, 1000);
+
+    return () =>{
+      clearInterval(intervalId)
+    }
+  },[pin])
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow">
@@ -27,7 +69,7 @@ export default function LobbyPage() {
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
             <p className="text-sm font-medium text-blue-700">Status</p>
             <p className="mt-1 text-sm text-blue-900">
-              Waiting for tutor to start...
+              {status === "started" ? "Game started" : "Waiting for tutor to start..."}
             </p>
           </div>
         </div>

@@ -18,7 +18,8 @@ def create_session(questions: list[dict]) -> dict:
         "students": [],
         "submissions": {},  
         "questions": session_questions,
-        "current_question_id": session_questions[0]["id"]
+        "current_question_id": session_questions[0]["id"],
+        "status" : "waiting"
     }
 
     return {
@@ -26,6 +27,28 @@ def create_session(questions: list[dict]) -> dict:
         "message": "Session created"
     }
 
+def start_session(pin: str):
+    if pin not in sessions:
+        return None
+    
+    sessions[pin]["status"] = "started"
+
+    return {
+        "pin": pin,
+        "status": "started",
+        "message": "Session started"
+    }
+
+def get_session_status(pin: str):
+    if pin not in sessions:
+        return None
+    
+    session = sessions[pin]
+    
+    return {
+        "pin": pin,
+        "status": session["status"]
+    }
 
 def join_session(pin: str, student_name: str):
     if pin not in sessions:

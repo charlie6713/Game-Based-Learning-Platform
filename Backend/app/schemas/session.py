@@ -17,3 +17,11 @@ class JoinSessionResponse(BaseModel):
 class CreateSessionRequest(BaseModel):
     questions: list[CreateSessionQuestion]
 
+class SessionStatusResponse(BaseModel):
+    pin: str
+    status: str
+
+class StartSessionResponse(BaseModel):
+    pin: str
+    status: str
+    message: str

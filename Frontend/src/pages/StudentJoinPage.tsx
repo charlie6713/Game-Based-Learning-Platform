@@ -27,7 +27,12 @@ export default function StudentJoinPage() {
 
     const data = await response.json()
     console.log("joined:", data )
-    navigate(`/lobby/${pin}`)
+    navigate(`/lobby/${pin}`,{
+      state:{
+        role: "student",
+        studentName: name,
+      }
+    })
     
   }
 
