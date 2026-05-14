@@ -35,8 +35,20 @@ export default function TutorSessionPage() {
         setStudents(data.students)
     }
 
-    const handleStartGame = () => {
-        navigate(`/session/${pin}/question`)
+    const handleStartGame = async () => {
+        const response = await fetch(`${API_BASE_URL}/sessions/${pin}/start`,{
+            method: "POST",
+        })
+        if (!response.ok){
+            alert("Failed to start session")
+            return
+        }
+
+        navigate(`/session/${pin}/question`,{
+            state:{
+                role: "tutor",
+            }
+        })
     }
 
     return (

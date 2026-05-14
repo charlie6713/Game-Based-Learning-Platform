@@ -13,7 +13,7 @@ export default function LobbyPage() {
   const API_BASE_URL = "http://localhost:8000"
 
   const getSessionStatus = async () =>{
-    const response = await fetch(`${API_BASE_URL}/${pin}/status`)
+    const response = await fetch(`${API_BASE_URL}/sessions/${pin}/status`)
 
     if (!response.ok) {
             alert("Session not found")
@@ -46,7 +46,7 @@ export default function LobbyPage() {
     return () =>{
       clearInterval(intervalId)
     }
-  },[pin])
+  },[pin]) // this effect is serverd for pin, so it depends on pin
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow">

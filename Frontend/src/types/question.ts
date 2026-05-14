@@ -9,3 +9,10 @@ export type QuestionBank={
     title: string
     questions: Question[]
 }
+
+export type CurrentQuestion={
+    id:number
+    text: string
+    options: string[]
+    answer?: string
+}

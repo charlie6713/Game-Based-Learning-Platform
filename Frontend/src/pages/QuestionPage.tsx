@@ -1,18 +1,45 @@
 import { useEffect, useState } from "react";
 import type { Role } from "../types/session";
 import { questionBank } from "../data/questionBank";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import type { CurrentQuestion } from "../types/question";
+
 
 export default function Questionpage() {
   const location = useLocation();
   const role: Role = location.state?.role === "tutor" ? "tutor" : "student";
-
+  const studentName = location.state?.studentName ?? ""
+  const {pin} = useParams()
+  const [question, setQuestion] = useState<CurrentQuestion | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [submitted, setSubmitted] = useState(false);
-
+  const API_BASE_URL = "http://localhost:8000"
   const currentQuestion = questionBank.questions[currentIndex];
+
+
+  const getCurrentQuestion = async () =>{
+    const endpoint = role === "tutor" 
+    ? `${API_BASE_URL}/sessions/${pin}/tutor/question`
+    : `${API_BASE_URL}/sessions/${pin}/studnet/question`
+
+    const response = await fetch(endpoint)
+
+    if (!response.ok){
+      alert("Failed to load question")
+      return
+    }
+
+    const data = await response.json()
+    setQuestion(data)
+  }
+
+  useEffect(() =>{
+    if(!pin) return
+    getCurrentQuestion()
+  }, [pin, role])
+
 
   const goToNextQuestion = () => {
     setCurrentIndex((prev) => {
@@ -29,7 +56,7 @@ export default function Questionpage() {
     if (submitted) return;
 
     if (timeLeft <= 0) {
-      goToNextQuestion();
+
       return;
     }
 
@@ -52,16 +79,30 @@ export default function Questionpage() {
     }
   };
 
-  const handleSubmit = () => {
-    if (!selectedAnswer || submitted) {
-      return;
-    }
+  const handleSubmit = async () => {
+    if (!selectedAnswer || submitted || !question) {
+    return
+  }
 
-    setSubmitted(true);
+    const response = await fetch(`${API_BASE_URL}/sessions/${pin}/submit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      student_name: studentName,
+      question_id: question.id,
+      answer: selectedAnswer,
+    }),
+  })
+    if (!response.ok) {
+    alert("Failed to submit answer")
+    return
+  }
+    const data = await response.json()
+  console.log("submitted:", data)
 
-    setTimeout(() => {
-      goToNextQuestion();
-    }, 1000);
+    setSubmitted(true)
   };
 
   if (!currentQuestion) {
