@@ -5,7 +5,8 @@ from app.schemas.session import (
     JoinSessionResponse,
     CreateSessionRequest,
     SessionStatusResponse,
-    StartSessionResponse
+    StartSessionResponse,
+    NextQuestionResponse
     )
 
 from app.schemas.submission import (
@@ -43,6 +44,24 @@ def create_new_session(data: CreateSessionRequest):
         questions.append(question.model_dump())
     return session_service.create_session(questions)
 
+
+@router.post("/{pin}/next", response_model=NextQuestionResponse, status_code=status.HTTP_200_OK)
+def go_to_next_question(pin: str):
+    result = session_service.next_session_question(pin)
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="session not found"
+        )
+
+    if result.get("error") == "no_more_questions":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No more questions"
+        )
+
+    return result
 
 
 @router.post("/join", response_model=JoinSessionResponse, status_code=status.HTTP_200_OK)

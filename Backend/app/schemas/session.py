@@ -25,3 +25,9 @@ class StartSessionResponse(BaseModel):
     pin: str
     status: str
     message: str
+
+class NextQuestionResponse(BaseModel):
+    pin: str
+    current_question_index: int
+    question_id: int
+    message: str

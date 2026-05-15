@@ -18,7 +18,7 @@ def create_session(questions: list[dict]) -> dict:
         "students": [],
         "submissions": {},  
         "questions": session_questions,
-        "current_question_id": session_questions[0]["id"],
+        "current_question_index": 0,
         "status" : "waiting"
     }
 
@@ -178,13 +178,13 @@ def get_session_results(pin: str):
 
 
 def _get_current_question(session: dict):
-    current_question_id = session["current_question_id"]
+    current_question_index = session["current_question_index"]
+    questions = session["questions"]
 
-    for question in session["questions"]:
-        if question["id"] == current_question_id:
-            return question
+    if current_question_index < 0 or current_question_index >= len(questions):
+        return None
 
-    return None
+    return questions[current_question_index]
 
 
 def _save_or_update_submission(session: dict, submission: dict):
@@ -233,4 +233,28 @@ def get_session_students(pin: str):
     return {
         "pin": pin,
         "students": students
+    }
+
+
+def next_session_question(pin: str):
+    if pin not in sessions:
+        return None
+
+    session = sessions[pin]
+    questions = session["questions"]
+    current_question_index = session["current_question_index"]
+
+    if current_question_index >= len(questions) - 1:
+        return {
+            "error": "no_more_questions"
+        }
+
+    session["current_question_index"] += 1
+    question = _get_current_question(session)
+
+    return {
+        "pin": pin,
+        "current_question_index": session["current_question_index"],
+        "question_id": question["id"],
+        "message": "Moved to next question"
     }
