@@ -1,6 +1,6 @@
 # Game-Based Learning Platform MVP
 
-This repository is a **minimal MVP rebuild** of the core workflow from a previous university group project.
+This repository is a **minimal MVP rebuild** of the core workflow from my previous university group project.
 
 The original project was developed by a **7-person team**, and it had a much more polished UI, more complete features, and a larger technical scope. This version is different on purpose:
 
