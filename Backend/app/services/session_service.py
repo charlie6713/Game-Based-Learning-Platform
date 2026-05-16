@@ -258,3 +258,21 @@ def next_session_question(pin: str):
         "question_id": question["id"],
         "message": "Moved to next question"
     }
+
+def get_session_leaderboard(pin: str):
+    result = get_session_students(pin)
+
+    if result is None:
+        return None
+    
+    students = result["students"]
+
+    sorted_students = sorted(
+        students,
+        key=lambda student: (-student["score"], -student["correct_count"], student["student_name"])
+    )
+
+    return {
+        "pin": pin,
+        "students": sorted_students
+    }

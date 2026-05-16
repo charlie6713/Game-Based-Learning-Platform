@@ -38,3 +38,7 @@ class StudentSummary(BaseModel):
 class SessionStudentsResponse(BaseModel):
     pin: str
     students: list[StudentSummary]
+
+class SessionLeaderboardResponse(BaseModel):
+    pin: str
+    students: list[StudentSummary]

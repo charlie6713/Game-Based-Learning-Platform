@@ -28,3 +28,8 @@ export type SessionStudentsResponse = {
     pin: string
     students: StudentSummary[]
 }
+
+export type SessionLeaderboardResponse = {
+  pin: string
+  students: StudentSummary[]
+}

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
 import type { Role } from "../types/session"
-import { useLocation, useParams } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import type { CurrentQuestion } from "../types/question"
 
 
 export default function Questionpage() {
   const location = useLocation()
+  const navigate = useNavigate()
+
   const role: Role = location.state?.role === "tutor" ? "tutor" : "student"
   const studentName = location.state?.studentName ?? ""
   const { pin } = useParams()
@@ -67,7 +69,7 @@ export default function Questionpage() {
   }, [pin, role])
 
   useEffect(() => {
-    if (role !== "student" || !pin) return
+    if (role !== "student" || !pin || isFinished) return
 
     const intervalId = setInterval(() => {
       getCurrentQuestion()
@@ -76,7 +78,7 @@ export default function Questionpage() {
     return () => {
       clearInterval(intervalId)
     }
-  }, [pin, role])
+  }, [pin, role, isFinished])
 
   useEffect(() => {
     if (!question) return
@@ -93,6 +95,18 @@ export default function Questionpage() {
 
     return () => clearTimeout(timer)
   }, [timeLeft, question, submitted])
+
+
+  useEffect(() => {
+  if (!isFinished || !pin) return
+
+  navigate(`/session/${pin}/leaderboard`, {
+    state: {
+      role: role,
+    },
+  })
+}, [isFinished, pin, role, navigate])
+
 
   const handleOptionClick = (option: string) => {
     if (role === "student" && !submitted) {
@@ -170,23 +184,16 @@ export default function Questionpage() {
 
   if (isFinished || !question) {
     return (
-      <div className="max-w-xl mx-auto mt-20 p-8 border rounded-xl shadow-md bg-white text-center">
-        <h1 className="text-3xl font-bold text-green-600 mb-4">
-          Game Finished
-        </h1>
+    <div className="max-w-xl mx-auto mt-20 p-8 border rounded-xl shadow-md bg-white text-center">
+      <h1 className="text-3xl font-bold text-slate-900 mb-4">
+        Redirecting to leaderboard...
+      </h1>
 
-        <p className="text-gray-600 text-lg mb-6">
-          No more questions
-        </p>
-
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Restart
-        </button>
-      </div>
-    )
+      <p className="text-gray-600 text-lg mb-6">
+        Please wait while we load the final results.
+      </p>
+    </div>
+  )
   }
 
   return (

@@ -4,6 +4,7 @@ import TutorHomePage from "./pages/TutorHomePage"
 import TutorSessionPage from "./pages/TutorSessionPage"
 import LobbyPage from "./pages/LobbyPage"
 import QuestionPage from "./pages/QuestionPage"
+import LeaderboardPage from "./pages/LeaderboardPage"
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/tutor/session/:pin" element={<TutorSessionPage />} />
         <Route path="/lobby/:pin" element={<LobbyPage />} />
         <Route path="/session/:pin/question" element={<QuestionPage />} />
+        <Route path="/session/:pin/leaderboard" element={<LeaderboardPage />} />
       </Routes>
     </div>
   )

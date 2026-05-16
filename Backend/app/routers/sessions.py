@@ -14,7 +14,8 @@ from app.schemas.submission import (
     SubmitAnswerResponse,
     SessionResultResponse,
     StudentSummary,
-    SessionStudentsResponse
+    SessionStudentsResponse,
+    SessionLeaderboardResponse
 )
 
 from app.schemas.question import (
@@ -175,3 +176,14 @@ def get_session_students(pin: str):
     
     return result
 
+@router.get("/{pin}/leaderboard", response_model=SessionLeaderboardResponse, status_code=status.HTTP_200_OK)
+def get_session_leaderboard(pin: str):
+    result = session_service.get_session_leaderboard(pin)
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="session not found"
+        )
+
+    return result
