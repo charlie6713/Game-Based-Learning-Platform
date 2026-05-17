@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useLocation, useNavigate, useParams} from "react-router-dom"
+import type { SessionStatus } from "../types/session"
 
 export default function LobbyPage() {
   const { pin } = useParams()
@@ -8,11 +9,13 @@ export default function LobbyPage() {
   const navigate = useNavigate()
 
   const studentName = location.state?.studentName ?? ""
-  const [status, setStatus] = useState("waiting")
+  const [status, setStatus] = useState<SessionStatus>("waiting")
 
   const API_BASE_URL = "http://localhost:8000"
 
-  const getSessionStatus = async () =>{
+  const getSessionStatus = useCallback(async () =>{
+    if (!pin) return
+
     const response = await fetch(`${API_BASE_URL}/sessions/${pin}/status`)
 
     if (!response.ok) {
@@ -32,21 +35,30 @@ export default function LobbyPage() {
         }
       })
     }
-  }
+
+    if (data.status === "finished"){
+      navigate(`/session/${pin}/leaderboard`,{
+        state: {
+          role: "student",
+          studentName: studentName,
+        }
+      })
+    }
+  }, [navigate, pin, studentName])
 
   useEffect(() => {
     if (!pin) return
 
     getSessionStatus()
 
-    const intervalId = setInterval(() => {
+    const intervalId = window.setInterval(() => {
       getSessionStatus()
     }, 1000);
 
     return () =>{
-      clearInterval(intervalId)
+      window.clearInterval(intervalId)
     }
-  },[pin]) // this effect is serverd for pin, so it depends on pin
+  },[pin, getSessionStatus]) // this effect is serverd for pin, so it depends on pin
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow">
@@ -69,7 +81,11 @@ export default function LobbyPage() {
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
             <p className="text-sm font-medium text-blue-700">Status</p>
             <p className="mt-1 text-sm text-blue-900">
-              {status === "started" ? "Game started" : "Waiting for tutor to start..."}
+              {status === "started"
+                ? "Game started"
+                : status === "finished"
+                  ? "Game finished"
+                  : "Waiting for tutor to start..."}
             </p>
           </div>
         </div>

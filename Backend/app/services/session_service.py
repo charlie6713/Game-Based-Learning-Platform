@@ -69,6 +69,9 @@ def get_student_question(pin: str):
         return None
 
     session = sessions[pin]
+    if session["status"] != "started":
+        return None
+
     question = _get_current_question(session)
 
     if question is None:
@@ -86,6 +89,9 @@ def get_tutor_question(pin: str):
         return None
 
     session = sessions[pin]
+    if session["status"] != "started":
+        return None
+
     question = _get_current_question(session)
 
     if question is None:
@@ -104,6 +110,11 @@ def submit_answer(pin: str, student_name: str, question_id: int, answer: str):
         return None
 
     session = sessions[pin]
+
+    if session["status"] != "started":
+        return {
+            "error": "session_not_started"
+        }
 
     if student_name not in session["students"]:
         return {
@@ -245,11 +256,14 @@ def next_session_question(pin: str):
     current_question_index = session["current_question_index"]
 
     if current_question_index >= len(questions) - 1:
+        session["current_question_index"] = len(questions)
+        session["status"] = "finished"
         return {
             "error": "no_more_questions"
         }
 
     session["current_question_index"] += 1
+    session["status"] = "started"
     question = _get_current_question(session)
 
     return {

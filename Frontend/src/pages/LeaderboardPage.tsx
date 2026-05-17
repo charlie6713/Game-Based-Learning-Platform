@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import type { Role, StudentSummary, SessionLeaderboardResponse } from "../types/session"
 
@@ -14,7 +14,7 @@ export default function LeaderboardPage() {
 
   const API_BASE_URL = "http://localhost:8000"
 
-  const getLeaderboard = async () => {
+  const getLeaderboard = useCallback(async () => {
     if (!pin) {
       setLoading(false)
       return
@@ -31,11 +31,11 @@ export default function LeaderboardPage() {
     const data: SessionLeaderboardResponse = await response.json()
     setStudents(data.students)
     setLoading(false)
-    }
+    }, [pin])
 
     useEffect(() => {
     getLeaderboard()
-    }, [pin])
+    }, [getLeaderboard])
 
     if (loading) {
     return (

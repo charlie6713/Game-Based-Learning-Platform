@@ -4,11 +4,12 @@ export type Student ={
 }
 
 export type Role = "tutor" | "student"
+export type SessionStatus = "waiting" | "started" | "finished"
 
 export type session = {
     pin: string
     title: string
-    status: "waitng" | "started"
+    status: SessionStatus
     students: Student[]
 }
 

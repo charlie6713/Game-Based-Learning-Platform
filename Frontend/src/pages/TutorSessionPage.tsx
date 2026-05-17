@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import type { StudentSummary, SessionStudentsResponse } from "../types/session"
 import { useNavigate, useParams } from "react-router-dom"
 
@@ -10,19 +10,9 @@ export default function TutorSessionPage() {
 
     const [students, setStudents] = useState<StudentSummary[]>([])
 
-    useEffect(()=>{
-        if(!pin) return
-        getStudents()
-        const intervalId = setInterval(() => {
-        getStudents()
-    }, 1000)  //every 1 second polling the student list
+    const getStudents = useCallback(async () => {
+        if (!pin) return
 
-    return () => {
-        clearInterval(intervalId)
-    }
-    },[pin])
-
-    const getStudents = async () => {
         const response = await fetch(`${API_BASE_URL}/sessions/${pin}/students`)
 
         if (!response.ok) {
@@ -33,7 +23,21 @@ export default function TutorSessionPage() {
         const data: SessionStudentsResponse = await response.json()
 
         setStudents(data.students)
-    }
+    }, [pin])
+
+    useEffect(()=>{
+        if(!pin) return
+
+        getStudents()
+
+        const intervalId = window.setInterval(() => {
+            getStudents()
+        }, 1000)  //every 1 second polling the student list
+
+        return () => {
+            window.clearInterval(intervalId)
+        }
+    },[pin, getStudents])
 
     const handleStartGame = async () => {
         const response = await fetch(`${API_BASE_URL}/sessions/${pin}/start`,{

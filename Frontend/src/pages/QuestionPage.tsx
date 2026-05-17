@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { Role } from "../types/session"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import type { CurrentQuestion } from "../types/question"
@@ -20,7 +20,7 @@ export default function Questionpage() {
   const [loading, setLoading] = useState(true)
   const [isFinished, setIsFinished] = useState(false)
 
-  const getCurrentQuestion = async (showLoading = false) => {
+  const getCurrentQuestion = useCallback(async (showLoading = false) => {
     if (!pin) return
 
     if (showLoading) {
@@ -61,12 +61,13 @@ export default function Questionpage() {
 
     setIsFinished(false)
     setLoading(false)
-  }
+  }, [pin, role])
 
   useEffect(() => {
     if(!pin) return
+
     getCurrentQuestion(true)
-  }, [pin, role])
+  }, [pin, getCurrentQuestion])
 
   useEffect(() => {
     if (role !== "student" || !pin || isFinished) return
@@ -78,7 +79,7 @@ export default function Questionpage() {
     return () => {
       clearInterval(intervalId)
     }
-  }, [pin, role, isFinished])
+  }, [pin, role, isFinished, getCurrentQuestion])
 
   useEffect(() => {
     if (!question) return

@@ -137,6 +137,12 @@ def submit_answer(pin: str, request: SubmitAnswerRequest):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Student has not joined this session"
         )
+
+    if result.get("error") == "session_not_started":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Session is not accepting submissions"
+        )
     
     if result.get("error") == "question_not_found":
         raise HTTPException(
